@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .board {
+        display: grid;
+        grid-template-columns: repeat(8, 50px);
+        grid-template-rows: repeat(8, 50px);
+        gap: 2px;
+        justify-content: center;
+        margin: auto;
+      }
+
+      .cell {
+        width: 50px;
+        height: 50px;
+        background-color: #f0d9b5; /* light square */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: bold;
+      }
+
+      .cell.dark {
+        background-color: #b58863; /* dark square */
+      }
+
+      .queen {
+        color: red;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 style="text-align: center">
+      8 Queens Problem – Backtracking Visualizer
+    </h1>
+
+    <!-- Board will be drawn here -->
+    <div id="board" class="board" style="margin-top: 20px"></div>
+
+    <!-- Button to start solving -->
+    <div style="text-align: center; margin-top: 20px">
+      <button onclick="startSolving()">Start Solving</button>
+    </div>
+
+    <script>
+      const N = 8;
+      let board = Array(N).fill(-1);
+
+      function createEmptyBoard() {
+        const boardDiv = document.getElementById("board");
+        boardDiv.innerHTML = "";
+
+        for (let row = 0; row < N; row++) {
+          for (let col = 0; col < N; col++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+
+            if ((row + col) % 2 === 1) {
+              cell.classList.add("dark");
+            }
+            boardDiv.appendChild(cell);
+          }
+        }
+      }
+
+      function renderBoard() {
+        const boardDiv = document.getElementById("board");
+        const cells = boardDiv.children;
+
+        for (let row = 0; row < N; row++) {
+          for (let col = 0; col < N; col++) {
+            const index = row * N + col;
+            const cell = cells[index];
+            cell.innerHTML = "";
+
+            if (board[row] === col) {
+              cell.innerHTML = "Q";
+              cell.classList.add("queen");
+            } else {
+              cell.classList.remove("queen");
+            }
+          }
+        }
+      }
+
+      function startSolving() {
+        board.fill(-1);
+        createEmptyBoard();
+        renderBoard();
+        solve(0);
+      }
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      function isSafe(row, col) {
+        for (let i = 0; i < row; i++) {
+          if (
+            board[i] === col || // same column
+            board[i] - i === col - row || // same \ diagonal
+            board[i] + i === col + row // same / diagonal
+          ) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      async function solve(row) {
+        if (row === N) {
+          return true;
+        }
+
+        for (let col = 0; col < N; col++) {
+          if (isSafe(row, col)) {
+            board[row] = col;
+            renderBoard();
+            await sleep(10);
+
+            if (await solve(row + 1)) {
+              return true;
+            }
+
+            board[row] = -1;
+            renderBoard();
+            await sleep(10);
+          }
+        }
+        return false;
+      }
+    </script>
+  </body>
+</html>
